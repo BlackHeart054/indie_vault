@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}Importar Jogos da Web | IndieVault{% endblock %}
+
+{% block content %}
+<div class="painel">
+    <div class="painel-cabecalho">
+        <div>
+            <span class="painel-titulo">Importar jogos da Web</span>
+            <p class="painel-subtitulo">
+                Puxa jogos de uma URL JSON usando <code>requests</code> ou <code>urllib.request</code> e joga direto pro catálogo.
+            </p>
+        </div>
+        <a href="{{ url_for('listar_jogos_rota') }}" class="botao botao-secundario botao-pequeno">
+            {{ icon('arrow-left', 14) }} Voltar ao catálogo
+        </a>
+    </div>
+    <div class="painel-corpo">
+        <form method="POST" action="{{ url_for('importar_dados') }}">
+            <div class="grade-formulario">
+                <div class="grupo-campo" style="grid-column: span 2;">
+                    <label for="url_api">Endereço Web (URL JSON)</label>
+                    <input type="url" id="url_api" name="url_api" class="campo-input"
+                           value="{{ resultado.url_consultada if resultado else url_padrao }}" required>
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="limite">Quantidade máxima de jogos</label>
+                    <input type="number" id="limite" name="limite" class="campo-input" min="1" max="50" value="8" required>
+                </div>
+            </div>
+
+            <div class="fontes-rapidas">
+                <span class="rotulo-mini">Fontes sugeridas:</span>
+                <button type="button" class="botao botao-secundario botao-pequeno"
+                        onclick="document.getElementById('url_api').value='https://www.freetogame.com/api/games?platform=pc'">
+                    {{ icon('globe', 13) }} API FreeToGame (PC)
+                </button>
+                <button type="button" class="botao botao-secundario botao-pequeno"
+                        onclick="document.getElementById('url_api').value='{{ request.host_url.rstrip('/') }}{{ url_for('api_jogos_indie') }}'">
+                    {{ icon('gamepad', 13) }} Catálogo Web Indie (Local)
+                </button>
+            </div>
+
+            <button type="submit" class="botao">
+                {{ icon('globe', 15) }} Importar jogos
+            </button>
+        </form>
+    </div>
+</div>
+
+{% if resultado %}
+<div class="painel">
+    <div class="painel-cabecalho">
+        <span class="painel-titulo">Resultado da Importação ({{ resultado.modulo_http }})</span>
+    </div>
+    <div class="painel-corpo">
+        <div class="grade-estatisticas">
+            <div class="caixa-estatistica">
+                <div class="numero-estatistica">{{ resultado.total_recebidos_api }}</div>
+                <div class="rotulo-estatistica">Encontrados na URL</div>
+            </div>
+            <div class="caixa-estatistica">
+                <div class="numero-estatistica valor-sucesso">{{ resultado.total_inseridos }}</div>
+                <div class="rotulo-estatistica">Novos Jogos Salvos</div>
+            </div>
+            <div class="caixa-estatistica">
+                <div class="numero-estatistica valor-aviso">{{ resultado.total_ignorados_duplicados }}</div>
+                <div class="rotulo-estatistica">Já Existentes no Catálogo</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="painel">
+    <div class="painel-cabecalho">
+        <span class="painel-titulo">Jogos Importados da Web ({{ acervo_importado|length }})</span>
+        <a href="{{ url_for('listar_jogos_rota', origem='web_import') }}" class="botao botao-secundario botao-pequeno">Ver no catálogo</a>
+    </div>
+    <div class="painel-corpo">
+        <div class="tabela-responsiva">
+            <table class="tabela">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Gênero</th>
+                        <th>Plataforma</th>
+                        <th>Ano</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for j in acervo_importado %}
+                    <tr>
+                        <td>#{{ j.id }}</td>
+                        <td><strong>{{ j.titulo }}</strong></td>
+                        <td>{{ j.genero }}</td>
+                        <td>{{ j.plataforma }}</td>
+                        <td>{{ j.ano_lancamento }}</td>
+                        <td>
+                            <a href="{{ url_for('nova_publicacao', jogo_id=j.id) }}" class="botao botao-secundario botao-pequeno">
+                                {{ icon('pen', 13) }} Escrever post
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="celula-vazia">
+                            Nenhum jogo foi importado da web ainda. Clique em <strong>"Importar jogos"</strong> acima para carregar títulos.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

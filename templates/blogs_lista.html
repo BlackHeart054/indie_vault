@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}Blogs da Galera | IndieVault{% endblock %}
+
+{% block content %}
+<div class="painel">
+    <div class="painel-cabecalho">
+        <div>
+            <span class="painel-titulo">Blogs da galera</span>
+            <p class="painel-subtitulo">
+                Dá uma olhada nos espaços pessoais e vê o que cada um anda postando por aqui.
+            </p>
+        </div>
+        <a href="{{ url_for('ver_blog_usuario', username=session.get('username')) }}" class="botao botao-pequeno">
+            {{ icon('book-user', 14) }} Meu blog
+        </a>
+    </div>
+    <div class="painel-corpo painel-compacto">
+        <form method="GET" action="{{ url_for('listar_blogs_rota') }}" class="barra-busca">
+            <div class="campo-busca-wrap">
+                {{ icon('search', 16) }}
+                <input type="text" name="busca" value="{{ filtro_busca }}" class="campo-input" placeholder="Buscar por nome do blog, @ ou bio...">
+            </div>
+            <button type="submit" class="botao">Buscar</button>
+            {% if filtro_busca %}
+            <a href="{{ url_for('listar_blogs_rota') }}" class="botao botao-secundario">Limpar</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% if blogs %}
+<div class="grade-blogs">
+    {% for b in blogs %}
+    <article class="card-blog">
+        <div class="card-blog-topo">
+            <div class="avatar-usuario avatar-medio">
+                {{ (b.nome_completo or b.username)[0]|upper }}
+            </div>
+            <div class="card-blog-autor">
+                <h3>{{ b.nome_blog or ('Blog de ' + b.nome_completo) }}</h3>
+                <span>{{ b.nome_completo }} · <strong>@{{ b.username }}</strong></span>
+            </div>
+        </div>
+
+        <p class="card-blog-bio">{{ b.bio }}</p>
+
+        {% if b.ultimo_post %}
+        <div class="card-blog-ultimo">
+            <span class="rotulo-mini">Última publicação</span>
+            <a href="{{ url_for('ver_publicacao', publicacao_id=b.ultimo_post.id) }}">{{ b.ultimo_post.titulo }}</a>
+        </div>
+        {% else %}
+        <div class="card-blog-ultimo vazio">
+            <span>Ainda não tem posts nesse blog.</span>
+        </div>
+        {% endif %}
+
+        <div class="card-blog-rodape">
+            <div class="card-blog-metricas">
+                <span>{{ icon('feather', 14) }} {{ b.total_publicacoes }} posts</span>
+                <span>{{ icon('heart', 14) }} {{ b.total_curtidas }} curtidas</span>
+            </div>
+            <a href="{{ url_for('ver_blog_usuario', username=b.username) }}" class="botao botao-secundario botao-pequeno">
+                <span>Visitar blog</span>
+                {{ icon('arrow-right', 14) }}
+            </a>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% else %}
+<div class="painel">
+    <div class="painel-corpo estado-vazio">
+        <p>Nenhum blog encontrado para "{{ filtro_busca }}".</p>
+        <a href="{{ url_for('listar_blogs_rota') }}" class="botao botao-secundario">Ver todos os blogs</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

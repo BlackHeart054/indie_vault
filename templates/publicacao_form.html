@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}{% if modo == 'editar' %}Editar Publicação{% else %}Escrever no Blog{% endif %} | IndieVault{% endblock %}
+
+{% block content %}
+<div class="painel painel-formulario">
+    <div class="painel-cabecalho">
+        <span class="painel-titulo">
+            {% if modo == 'editar' %}
+                Editar publicação #{{ publicacao.id }}
+            {% else %}
+                Escrever nova publicação no seu blog
+            {% endif %}
+        </span>
+    </div>
+    <div class="painel-corpo">
+        <form method="POST" action="{{ url_for('editar_publicacao', publicacao_id=publicacao.id) if modo == 'editar' else url_for('nova_publicacao') }}">
+            <div class="grupo-campo">
+                <label for="titulo">Título do post</label>
+                <input type="text" id="titulo" name="titulo" class="campo-input" maxlength="150"
+                       value="{{ publicacao.titulo if publicacao else '' }}"
+                       placeholder="ex: O que achei de Hollow Knight, ou qualquer papo sobre jogos..." required autofocus>
+            </div>
+
+            <div class="grade-formulario">
+                <div class="grupo-campo">
+                    <label for="categoria">Tipo de post</label>
+                    <select id="categoria" name="categoria" class="campo-input" required>
+                        <option value="livre" {% if publicacao and publicacao.categoria == 'livre' %}selected{% endif %}>Post livre / Opinião</option>
+                        <option value="zerado" {% if publicacao and publicacao.categoria == 'zerado' %}selected{% endif %}>Jogo zerado / Platina</option>
+                        <option value="detonado" {% if publicacao and publicacao.categoria == 'detonado' %}selected{% endif %}>Detonado e dicas</option>
+                        <option value="experiencia" {% if publicacao and publicacao.categoria == 'experiencia' %}selected{% endif %}>Relato de campanha</option>
+                        <option value="analise" {% if publicacao and publicacao.categoria == 'analise' %}selected{% endif %}>Review / Análise</option>
+                    </select>
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="jogo_id">Ligar a um jogo do catálogo (opcional)</label>
+                    <select id="jogo_id" name="jogo_id" class="campo-input">
+                        <option value="">Nenhum (post livre)</option>
+                        {% set jogo_atual = (publicacao.jogo_id|string if publicacao and publicacao.jogo_id else (jogo_selecionado|string if jogo_selecionado else '')) %}
+                        {% for j in jogos %}
+                        <option value="{{ j.id }}" {% if jogo_atual == (j.id|string) %}selected{% endif %}>
+                            {{ j.titulo }} ({{ j.plataforma }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div id="bloco-dados-jogo" class="bloco-opcional-jogo">
+                <p class="bloco-opcional-titulo">
+                    {{ icon('gamepad', 15) }}
+                    <span>Detalhes da jogatina (opcional)</span>
+                </p>
+                <div class="grade-formulario">
+                    <div class="grupo-campo">
+                        <label for="status_jogo">Como tá o progresso?</label>
+                        <select id="status_jogo" name="status_jogo" class="campo-input">
+                            {% for st in ['Zerado (História)', 'Platinado (100%)', 'Jogando Agora', 'Rejogando', 'Abandonado'] %}
+                            <option value="{{ st }}" {% if publicacao and publicacao.status_jogo == st %}selected{% endif %}>{{ st }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="grupo-campo">
+                        <label for="horas_jogadas">Horas jogadas</label>
+                        <input type="number" id="horas_jogadas" name="horas_jogadas" class="campo-input" min="0" max="9999"
+                               value="{{ publicacao.horas_jogadas if publicacao and publicacao.horas_jogadas is not none else 20 }}">
+                    </div>
+
+                    <div class="grupo-campo">
+                        <label for="nota">Sua nota (0 a 10, opcional)</label>
+                        <input type="number" id="nota" name="nota" class="campo-input" min="0" max="10"
+                               value="{{ publicacao.nota if publicacao and publicacao.nota is not none else '' }}"
+                               placeholder="ex: 9">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grupo-campo">
+                <label for="conteudo">Texto do post</label>
+                <textarea id="conteudo" name="conteudo" rows="9" class="campo-input"
+                          placeholder="Manda ver no texto: suas impressões, dicas pra passar de fase, review ou qualquer papo sobre jogos..." required>{{ publicacao.conteudo if publicacao else '' }}</textarea>
+            </div>
+
+            <div class="acoes-form">
+                <button type="submit" class="botao">
+                    {{ icon('feather', 15) }}
+                    <span>{% if modo == 'editar' %}Salvar alterações{% else %}Publicar no meu blog{% endif %}</span>
+                </button>
+                <a href="{{ url_for('menu_principal') }}" class="botao botao-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    const selectJogo = document.getElementById('jogo_id');
+    const blocoJogo = document.getElementById('bloco-dados-jogo');
+    if (!selectJogo || !blocoJogo) return;
+
+    function atualizarVisibilidadeJogo() {
+        const temJogo = Boolean(selectJogo.value);
+        blocoJogo.hidden = !temJogo;
+    }
+
+    selectJogo.addEventListener('change', atualizarVisibilidadeJogo);
+    atualizarVisibilidadeJogo();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}Criar Blog | IndieVault{% endblock %}
+
+{% block content %}
+<div class="painel auth-card-cadastro">
+    <div class="painel-cabecalho">
+        <span class="painel-titulo">Criar seu blog</span>
+    </div>
+    <div class="painel-corpo">
+        <p class="texto-suave-bloco">
+            Escolhe um @, dá um nome pro seu espaço e já sai postando.
+        </p>
+
+        <form method="POST" action="{{ url_for('cadastro') }}">
+            <div class="grade-formulario">
+                <div class="grupo-campo">
+                    <label for="username">Seu @ (nickname)</label>
+                    <input type="text" id="username" name="username" class="campo-input" maxlength="50"
+                           value="{{ form.username if form else '' }}"
+                           placeholder="ex: joao_gamer" autocomplete="username" required autofocus>
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="nome_completo">Seu nome</label>
+                    <input type="text" id="nome_completo" name="nome_completo" class="campo-input" maxlength="100"
+                           value="{{ form.nome_completo if form else '' }}"
+                           placeholder="Como quer aparecer" required>
+                </div>
+            </div>
+
+            <div class="grupo-campo">
+                <label for="nome_blog">Nome do seu blog (opcional)</label>
+                <input type="text" id="nome_blog" name="nome_blog" class="campo-input" maxlength="100"
+                       value="{{ form.nome_blog if form else '' }}"
+                       placeholder="ex: Diário de Bosses, Zero & Café...">
+            </div>
+
+            <div class="grupo-campo">
+                <label for="bio">Bio curta (opcional)</label>
+                <input type="text" id="bio" name="bio" class="campo-input" maxlength="200"
+                       value="{{ form.bio if form else '' }}"
+                       placeholder="ex: Curto RPG de turno, indie de terror e trilha retrô">
+            </div>
+
+            <div class="grade-formulario">
+                <div class="grupo-campo">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" class="campo-input" minlength="4"
+                           placeholder="Pelo menos 4 caracteres" autocomplete="new-password" required>
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="confirmar_senha">Confirmar senha</label>
+                    <input type="password" id="confirmar_senha" name="confirmar_senha" class="campo-input" minlength="4"
+                           placeholder="Repita a senha" autocomplete="new-password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="botao botao-bloco" style="margin-top: 8px;">
+                {{ icon('feather', 16) }}
+                <span>Criar meu blog</span>
+            </button>
+        </form>
+
+        <div class="auth-rodape-link">
+            <span>Já tem conta?</span>
+            <a href="{{ url_for('login') }}">Entrar</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

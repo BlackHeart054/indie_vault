@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}{{ publicacao.titulo }} | IndieVault{% endblock %}
+
+{% block content %}
+<div class="coluna-leitura">
+    <div class="barra-voltar">
+        <a href="{{ url_for('menu_principal') }}" class="botao botao-secundario botao-pequeno">
+            {{ icon('arrow-left', 14) }} Voltar ao Feed
+        </a>
+        <a href="{{ url_for('ver_blog_usuario', username=publicacao.username) }}" class="botao botao-secundario botao-pequeno">
+            {{ icon('book-user', 14) }} Blog de {{ publicacao.nome_completo }}
+        </a>
+    </div>
+
+    <article class="card-blogpost card-artigo">
+        <div class="post-topo">
+            <a href="{{ url_for('ver_blog_usuario', username=publicacao.username) }}" class="post-autor-link">
+                <span class="avatar-usuario">{{ (publicacao.nome_completo or publicacao.username or 'G')[0]|upper }}</span>
+                <span class="post-autor-info">
+                    <strong>{{ publicacao.nome_completo }}</strong>
+                    <span class="post-arroba">@{{ publicacao.username }}{% if publicacao.nome_blog %} · {{ publicacao.nome_blog }}{% endif %}</span>
+                </span>
+            </a>
+
+            <div class="post-topo-direita">
+                {% if publicacao.categoria == 'detonado' %}
+                    <span class="badge badge-detonado">{{ icon('book-open', 13) }} Detonado</span>
+                {% elif publicacao.categoria == 'experiencia' %}
+                    <span class="badge badge-experiencia">{{ icon('sparkles', 13) }} Experiência</span>
+                {% elif publicacao.categoria == 'analise' %}
+                    <span class="badge badge-analise">{{ icon('star', 13) }} Análise</span>
+                {% elif publicacao.categoria == 'zerado' %}
+                    <span class="badge badge-zerado">{{ icon('trophy', 13) }} Jogo Zerado</span>
+                {% else %}
+                    <span class="badge badge-livre">{{ icon('feather', 13) }} Post Livre</span>
+                {% endif %}
+                <span class="post-data">
+                    {{ publicacao.criado_em.strftime('%d/%m/%Y às %H:%M') if publicacao.criado_em and publicacao.criado_em is not string else (publicacao.criado_em or '-') }}
+                </span>
+            </div>
+        </div>
+
+        <h1 class="titulo-artigo">{{ publicacao.titulo }}</h1>
+
+        {% if publicacao.jogo_titulo %}
+        <div class="meta-jogatina">
+            <a href="{{ url_for('listar_publicacoes_rota', jogo_id=publicacao.jogo_id) }}" class="tag-jogo">
+                {{ icon('gamepad', 13) }} {{ publicacao.jogo_titulo }}{% if publicacao.jogo_ano %} ({{ publicacao.jogo_ano }}){% endif %}
+            </a>
+            {% if publicacao.nota is not none %}
+            <span class="tag-nota">{{ icon('star', 12) }} Nota {{ publicacao.nota }}/10</span>
+            {% endif %}
+            {% if publicacao.status_jogo and publicacao.status_jogo != 'Postagem Livre' %}
+            <span class="meta-item">{{ icon('tag', 13) }} {{ publicacao.status_jogo }}</span>
+            {% endif %}
+            {% if publicacao.horas_jogadas and publicacao.horas_jogadas > 0 %}
+            <span class="meta-item">{{ icon('clock', 13) }} {{ publicacao.horas_jogadas }}h jogadas</span>
+            {% endif %}
+            {% if publicacao.jogo_plataforma %}
+            <span class="meta-item">{{ icon('monitor', 13) }} {{ publicacao.jogo_plataforma }}</span>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="texto-publicacao texto-artigo">{{ publicacao.conteudo }}</div>
+
+        <div class="rodape-publicacao">
+            <div class="rodape-esquerda">
+                <form method="POST" action="{{ url_for('votar_publicacao_rota', publicacao_id=publicacao.id) }}" class="form-curtir">
+                    {% set curtiu = publicacao.id in curtidas_usuario %}
+                    <button type="submit" class="botao-curtir {% if curtiu %}curtido{% endif %}">
+                        {{ icon('heart-filled' if curtiu else 'heart', 16) }}
+                        <span>{{ publicacao.votos or 0 }} curtida{% if (publicacao.votos or 0) != 1 %}s{% endif %}</span>
+                    </button>
+                </form>
+            </div>
+
+            {% if publicacao.usuario_id == session.get('usuario_id') %}
+            <div class="rodape-direita">
+                <a href="{{ url_for('editar_publicacao', publicacao_id=publicacao.id) }}" class="botao botao-secundario botao-pequeno">
+                    {{ icon('pencil', 14) }} Editar publicação
+                </a>
+                <form method="POST" action="{{ url_for('excluir_publicacao_rota', publicacao_id=publicacao.id) }}" onsubmit="return confirm('Deseja excluir esta publicação do seu blog?');">
+                    <button type="submit" class="botao botao-perigo botao-pequeno">
+                        {{ icon('trash', 14) }} Excluir
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </article>
+
+    <div class="painel card-autor-rodape">
+        <div class="painel-corpo autor-rodape-corpo">
+            <div class="autor-rodape-esq">
+                <div class="avatar-usuario avatar-medio">
+                    {{ (publicacao.nome_completo or publicacao.username or 'G')[0]|upper }}
+                </div>
+                <div>
+                    <span class="rotulo-mini">Publicado no blog</span>
+                    <h3>{{ publicacao.nome_blog or ('Blog de ' + publicacao.nome_completo) }}</h3>
+                    <p>{{ publicacao.usuario_bio or 'Membro da comunidade IndieVault.' }}</p>
+                </div>
+            </div>
+            <a href="{{ url_for('ver_blog_usuario', username=publicacao.username) }}" class="botao botao-secundario">
+                <span>Ver mais de @{{ publicacao.username }}</span>
+                {{ icon('arrow-right', 15) }}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}Editar Perfil e Blog | IndieVault{% endblock %}
+
+{% block content %}
+<div class="painel painel-formulario-medio">
+    <div class="painel-cabecalho">
+        <span class="painel-titulo">Editar Perfil e Identidade do Blog</span>
+    </div>
+    <div class="painel-corpo">
+        <form method="POST" action="{{ url_for('editar_perfil') }}">
+            <div class="grade-formulario">
+                <div class="grupo-campo">
+                    <label for="username">Nickname (@)</label>
+                    <input type="text" id="username" name="username" class="campo-input" maxlength="50"
+                           value="{{ usuario.username }}" required>
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="nome_completo">Nome de exibição</label>
+                    <input type="text" id="nome_completo" name="nome_completo" class="campo-input" maxlength="100"
+                           value="{{ usuario.nome_completo }}" required>
+                </div>
+            </div>
+
+            <div class="grupo-campo">
+                <label for="nome_blog">Nome do seu blog</label>
+                <input type="text" id="nome_blog" name="nome_blog" class="campo-input" maxlength="100"
+                       value="{{ usuario.nome_blog or '' }}" placeholder="Ex: Diário de Bosses">
+            </div>
+
+            <div class="grupo-campo">
+                <label for="bio">Bio do autor / descrição do blog</label>
+                <input type="text" id="bio" name="bio" class="campo-input" maxlength="200"
+                       value="{{ usuario.bio }}">
+            </div>
+
+            <div class="grupo-campo">
+                <label for="nova_senha">Nova senha (deixe em branco para manter a atual)</label>
+                <input type="password" id="nova_senha" name="nova_senha" class="campo-input" minlength="4"
+                       placeholder="Preencha apenas se quiser trocar sua senha">
+            </div>
+
+            <div class="acoes-form">
+                <button type="submit" class="botao">
+                    {{ icon('check-circle', 15) }} Salvar alterações
+                </button>
+                <a href="{{ url_for('meu_perfil') }}" class="botao botao-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

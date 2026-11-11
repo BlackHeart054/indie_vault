@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}Entrar | IndieVault{% endblock %}
+
+{% block content %}
+<section class="auth-grade">
+    <div class="auth-apresentacao">
+        <span class="pill-destaque">
+            {{ icon('gamepad', 14) }} De gamer pra gamer
+        </span>
+        <h1 class="auth-titulo">
+            Um cantinho simples pra escrever sobre o que você anda jogando.
+        </h1>
+        <p class="auth-subtitulo">
+            Sabe aqueles blogs antigos onde a galera postava o que tava jogando, umas dicas de chefe chato ou só uma opinião sem compromisso? A ideia aqui é essa.
+        </p>
+        <p class="auth-nota-simples">
+            Você cria seu blog com seu @, posta reviews com nota, detonados ou texto livre mesmo, e lê o que o resto do pessoal anda zerando por aí.
+        </p>
+    </div>
+
+    <div class="painel auth-card">
+        <div class="painel-cabecalho">
+            <span class="painel-titulo">Entrar na sua conta</span>
+        </div>
+        <div class="painel-corpo">
+            <p class="texto-suave-bloco">
+                Coloca seu @ e sua senha aí embaixo pra acessar seu blog.
+            </p>
+
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="grupo-campo">
+                    <label for="username">Seu @ (nickname)</label>
+                    <input type="text" id="username" name="username" class="campo-input" placeholder="ex: lucas_joga" autocomplete="username" required autofocus>
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" class="campo-input" placeholder="Sua senha" autocomplete="current-password" required>
+                </div>
+
+                <button type="submit" class="botao botao-bloco">
+                    <span>Entrar</span>
+                    {{ icon('arrow-right', 16) }}
+                </button>
+            </form>
+
+            <div class="auth-rodape-link">
+                <span>Ainda não tem blog aqui?</span>
+                <a href="{{ url_for('cadastro') }}">Criar conta</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

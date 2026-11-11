@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+{% from '_post_card.html' import render_post %}
+
+{% block title %}Feed | IndieVault{% endblock %}
+
+{% block content %}
+<div class="layout-comunidade">
+    <div>
+        <div class="caixa-criar-post">
+            <div class="avatar-usuario">
+                {{ session.get('username', 'G')[0]|upper }}
+            </div>
+            <a href="{{ url_for('nova_publicacao') }}" class="input-criar-post">
+                Jogando algo legal agora? Escreva um post livre, detonado ou review...
+            </a>
+            <a href="{{ url_for('nova_publicacao') }}" class="botao botao-pequeno">
+                {{ icon('pen', 14) }} <span>Novo post</span>
+            </a>
+        </div>
+
+        <div class="abas-feed">
+            <div class="grupo-abas">
+                <a href="{{ url_for('menu_principal', ordem=ordenacao) }}" class="aba-item {% if not filtro_categoria %}ativa{% endif %}">
+                    Tudo
+                </a>
+                <a href="{{ url_for('menu_principal', categoria='livre', ordem=ordenacao) }}" class="aba-item {% if filtro_categoria == 'livre' %}ativa{% endif %}">
+                    {{ icon('feather', 13) }} Livres
+                </a>
+                <a href="{{ url_for('menu_principal', categoria='zerado', ordem=ordenacao) }}" class="aba-item {% if filtro_categoria == 'zerado' %}ativa{% endif %}">
+                    {{ icon('trophy', 13) }} Zerados
+                </a>
+                <a href="{{ url_for('menu_principal', categoria='detonado', ordem=ordenacao) }}" class="aba-item {% if filtro_categoria == 'detonado' %}ativa{% endif %}">
+                    {{ icon('book-open', 13) }} Detonados
+                </a>
+                <a href="{{ url_for('menu_principal', categoria='experiencia', ordem=ordenacao) }}" class="aba-item {% if filtro_categoria == 'experiencia' %}ativa{% endif %}">
+                    {{ icon('sparkles', 13) }} Relatos
+                </a>
+                <a href="{{ url_for('menu_principal', categoria='analise', ordem=ordenacao) }}" class="aba-item {% if filtro_categoria == 'analise' %}ativa{% endif %}">
+                    {{ icon('star', 13) }} Reviews
+                </a>
+            </div>
+
+            <div class="grupo-abas">
+                <a href="{{ url_for('menu_principal', categoria=filtro_categoria, ordem='recentes') }}" class="aba-item {% if ordenacao != 'populares' %}ativa{% endif %}">
+                    {{ icon('clock', 13) }} Recentes
+                </a>
+                <a href="{{ url_for('menu_principal', categoria=filtro_categoria, ordem='populares') }}" class="aba-item {% if ordenacao == 'populares' %}ativa{% endif %}">
+                    {{ icon('flame', 13) }} Mais curtidos
+                </a>
+            </div>
+        </div>
+
+        {% if publicacoes %}
+            {% for pub in publicacoes %}
+                {{ render_post(pub, curtidas_usuario, session.get('usuario_id'), mostrar_autor=true) }}
+            {% endfor %}
+        {% else %}
+            <div class="painel">
+                <div class="painel-corpo estado-vazio">
+                    <p>Nenhuma publicação encontrada nesta categoria ainda.</p>
+                    <a href="{{ url_for('nova_publicacao') }}" class="botao">
+                        {{ icon('pen', 15) }} Escrever primeira publicação
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <aside>
+        <div class="widget-lateral">
+            <div class="meu-blog-resumo">
+                <div class="avatar-usuario">
+                    {{ session.get('username', 'G')[0]|upper }}
+                </div>
+                <div>
+                    <strong class="meu-blog-nome">{{ session.get('nome_blog') or 'Meu Blog Gamer' }}</strong>
+                    <span class="meu-blog-arroba">@{{ session.get('username') }}</span>
+                </div>
+            </div>
+
+            <div class="grade-stats-mini">
+                <div class="caixa-estatistica">
+                    <div class="numero-estatistica">{{ meus_stats.posts }}</div>
+                    <div class="rotulo-estatistica">Posts</div>
+                </div>
+                <div class="caixa-estatistica">
+                    <div class="numero-estatistica">{{ meus_stats.jogos }}</div>
+                    <div class="rotulo-estatistica">Jogos</div>
+                </div>
+                <div class="caixa-estatistica">
+                    <div class="numero-estatistica">{{ meus_stats.curtidas }}</div>
+                    <div class="rotulo-estatistica">Curtidas</div>
+                </div>
+            </div>
+
+            <div class="pilha-botoes">
+                <a href="{{ url_for('ver_blog_usuario', username=session.get('username')) }}" class="botao">
+                    {{ icon('book-user', 15) }} Abrir meu blog
+                </a>
+                <a href="{{ url_for('nova_publicacao') }}" class="botao botao-secundario">
+                    {{ icon('pen', 15) }} Escrever novo post
+                </a>
+            </div>
+        </div>
+
+        <div class="widget-lateral">
+            <h3 class="widget-titulo">
+                <span>Blogs da galera</span>
+                <a href="{{ url_for('listar_blogs_rota') }}">Ver todos</a>
+            </h3>
+            {% if destaques.blogs_destaque %}
+                {% for b in destaques.blogs_destaque %}
+                <a href="{{ url_for('ver_blog_usuario', username=b.username) }}" class="item-lista-link">
+                    <span class="avatar-usuario avatar-pequeno">{{ (b.nome_completo or b.username)[0]|upper }}</span>
+                    <span class="item-lista-texto">
+                        <strong>{{ b.nome_blog or ('Blog de ' + b.nome_completo) }}</strong>
+                        <span>@{{ b.username }} · {{ b.total_publicacoes }} posts</span>
+                    </span>
+                    {{ icon('arrow-right', 14) }}
+                </a>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="widget-lateral">
+            <h3 class="widget-titulo">
+                <span>Jogos bem avaliados</span>
+                <a href="{{ url_for('listar_jogos_rota') }}">Catálogo</a>
+            </h3>
+            {% if destaques.melhores_jogos %}
+                {% for top in destaques.melhores_jogos %}
+                <div class="item-lista-jogo">
+                    <div>
+                        <a href="{{ url_for('listar_publicacoes_rota', jogo_id=top.id) }}" class="item-jogo-titulo">
+                            {{ top.titulo }}
+                        </a>
+                        <span class="item-jogo-meta">{{ top.genero }} · {{ top.ano_lancamento }}</span>
+                    </div>
+                    <span class="tag-nota">{{ icon('star', 12) }} {{ top.media_nota }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="texto-suave-pequeno">Ainda sem jogos avaliados.</p>
+            {% endif %}
+        </div>
+    </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}Sobre o Projeto | IndieVault{% endblock %}
+
+{% block content %}
+<div class="painel">
+    <div class="painel-cabecalho">
+        <span class="painel-titulo">Sobre o Projeto &amp; Desenvolvedor</span>
+    </div>
+    <div class="painel-corpo">
+        <h3 class="secao-subtitulo">Dados do Projeto</h3>
+        <div class="bloco-info-sobre">
+            <p><strong>Sistema:</strong> {{ projeto.nome_sistema }}</p>
+            <p><strong>Proposta:</strong> {{ projeto.tema_escolhido }}</p>
+            <p><strong>Objetivo:</strong> {{ projeto.objetivo }}</p>
+            <p><strong>Disciplina:</strong> {{ projeto.disciplina }} - {{ projeto.instituicao }}</p>
+            <p style="margin-bottom: 0;"><strong>Banco de Dados Ativo:</strong> Peewee ORM conectado em <code>{{ sgbd_ativo }}</code></p>
+        </div>
+
+        <h3 class="secao-subtitulo">Identificação do Desenvolvedor</h3>
+        <div class="tabela-responsiva" style="margin-bottom: 24px;">
+            <table class="tabela">
+                <thead>
+                    <tr>
+                        <th>Nome Completo</th>
+                        <th>Código de Matrícula (RA)</th>
+                        <th>Curso</th>
+                        <th>Instituição</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dev in projeto.desenvolvedores %}
+                    <tr>
+                        <td><strong>{{ dev.nome_completo }}</strong></td>
+                        <td><span class="badge badge-zerado">{{ dev.ra }}</span></td>
+                        <td>{{ dev.curso }}</td>
+                        <td>{{ dev.instituicao }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <a href="{{ url_for('menu_principal') }}" class="botao botao-secundario">
+            {{ icon('arrow-left', 14) }} Voltar ao Feed
+        </a>
+    </div>
+</div>
+{% endblock %}

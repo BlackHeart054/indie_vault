@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+{% from '_post_card.html' import render_post %}
+
+{% block title %}Explorar Posts | IndieVault{% endblock %}
+
+{% block content %}
+<div class="painel">
+    <div class="painel-cabecalho">
+        <div>
+            <span class="painel-titulo">Explorar posts</span>
+            <p class="painel-subtitulo">
+                Procure por assunto, filtre por autor, jogo ou tipo de post.
+            </p>
+        </div>
+        <a href="{{ url_for('nova_publicacao') }}" class="botao botao-pequeno">
+            {{ icon('pen', 14) }} Escrever post
+        </a>
+    </div>
+    <div class="painel-corpo painel-compacto">
+        <form method="GET" action="{{ url_for('listar_publicacoes_rota') }}">
+            <div class="grade-formulario">
+                <div>
+                    <label for="busca" class="rotulo-campo">Buscar por título, texto ou autor</label>
+                    <input type="text" id="busca" name="busca" value="{{ filtro_busca }}" class="campo-input" placeholder="ex: Hollow Knight, build, trilha...">
+                </div>
+
+                <div>
+                    <label for="usuario_id" class="rotulo-campo">Blog / Autor</label>
+                    <select id="usuario_id" name="usuario_id" class="campo-input">
+                        <option value="">Todos os autores</option>
+                        {% for a in autores %}
+                        <option value="{{ a.id }}" {% if filtro_usuario_id == a.id %}selected{% endif %}>{{ a.nome_completo }} (@{{ a.username }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="jogo_id" class="rotulo-campo">Jogo vinculado</label>
+                    <select id="jogo_id" name="jogo_id" class="campo-input">
+                        <option value="">Todos os jogos</option>
+                        {% for j in jogos %}
+                        <option value="{{ j.id }}" {% if filtro_jogo_id == j.id %}selected{% endif %}>{{ j.titulo }} ({{ j.plataforma }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="categoria" class="rotulo-campo">Categoria</label>
+                    <select id="categoria" name="categoria" class="campo-input">
+                        <option value="">Todas as categorias</option>
+                        <option value="livre" {% if filtro_categoria == 'livre' %}selected{% endif %}>Post Livre / Crônica</option>
+                        <option value="zerado" {% if filtro_categoria == 'zerado' %}selected{% endif %}>Jogo Zerado / Platinado</option>
+                        <option value="detonado" {% if filtro_categoria == 'detonado' %}selected{% endif %}>Detonado / Guia</option>
+                        <option value="experiencia" {% if filtro_categoria == 'experiencia' %}selected{% endif %}>Experiência / Relato</option>
+                        <option value="analise" {% if filtro_categoria == 'analise' %}selected{% endif %}>Análise / Review</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="acoes-filtro">
+                <button type="submit" class="botao botao-pequeno">
+                    {{ icon('search', 14) }} Filtrar publicações
+                </button>
+                {% if filtro_busca or filtro_usuario_id or filtro_jogo_id or filtro_categoria %}
+                <a href="{{ url_for('listar_publicacoes_rota') }}" class="botao botao-secundario botao-pequeno">Limpar filtros</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if publicacoes %}
+    <div class="coluna-leitura">
+        {% for pub in publicacoes %}
+            {{ render_post(pub, curtidas_usuario, session.get('usuario_id'), mostrar_autor=true) }}
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="painel">
+        <div class="painel-corpo estado-vazio">
+            <p>Nenhuma publicação encontrada com os filtros informados.</p>
+            <a href="{{ url_for('nova_publicacao') }}" class="botao">
+                {{ icon('pen', 15) }} Publicar agora
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

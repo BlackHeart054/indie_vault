@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}{% if modo == 'editar' %}Editar Jogo{% else %}Cadastrar Jogo{% endif %} | IndieVault{% endblock %}
+
+{% block content %}
+<div class="painel painel-formulario-medio">
+    <div class="painel-cabecalho">
+        <span class="painel-titulo">
+            {% if modo == 'editar' %}
+                Editar informações do jogo #{{ jogo.id }}
+            {% else %}
+                Cadastrar novo jogo no catálogo
+            {% endif %}
+        </span>
+    </div>
+    <div class="painel-corpo">
+        <form method="POST" action="{{ url_for('editar_jogo', jogo_id=jogo.id) if modo == 'editar' else url_for('novo_jogo') }}">
+            <div class="grupo-campo">
+                <label for="titulo">Título do jogo</label>
+                <input type="text" id="titulo" name="titulo" class="campo-input" maxlength="150"
+                       value="{{ jogo.titulo if jogo else '' }}" placeholder="Ex: Hollow Knight" required autofocus>
+            </div>
+
+            <div class="grade-formulario">
+                <div class="grupo-campo">
+                    <label for="genero">Gênero</label>
+                    <input type="text" id="genero" name="genero" class="campo-input" maxlength="50"
+                           value="{{ jogo.genero if jogo else '' }}" placeholder="Ex: Metroidvania, RPG, Roguelike..." required>
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="plataforma">Plataformas</label>
+                    <input type="text" id="plataforma" name="plataforma" class="campo-input" maxlength="50"
+                           value="{{ jogo.plataforma if jogo else 'PC' }}" placeholder="Ex: PC / Switch / PS5" required>
+                </div>
+            </div>
+
+            <div class="grupo-campo">
+                <label for="ano_lancamento">Ano de lançamento</label>
+                <input type="number" id="ano_lancamento" name="ano_lancamento" class="campo-input"
+                       min="1970" max="2035" value="{{ jogo.ano_lancamento if jogo else 2024 }}" required>
+            </div>
+
+            <div class="acoes-form">
+                <button type="submit" class="botao">
+                    {{ icon('gamepad', 15) }}
+                    <span>{% if modo == 'editar' %}Salvar alterações{% else %}Cadastrar jogo{% endif %}</span>
+                </button>
+                <a href="{{ url_for('listar_jogos_rota') }}" class="botao botao-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

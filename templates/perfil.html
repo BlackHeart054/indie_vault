@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}Meu Espaço &amp; Blog | IndieVault{% endblock %}
+
+{% block content %}
+<div class="layout-comunidade">
+    <div>
+        <div class="painel">
+            <div class="painel-cabecalho">
+                <div>
+                    <span class="painel-titulo">Meus posts ({{ minhas_publicacoes|length }})</span>
+                    <p class="painel-subtitulo">Seus textos, detonados e reviews num lugar só</p>
+                </div>
+                <a href="{{ url_for('nova_publicacao') }}" class="botao botao-pequeno">
+                    {{ icon('pen', 14) }} Novo post
+                </a>
+            </div>
+            <div class="painel-corpo">
+                {% if minhas_publicacoes %}
+                    <div class="lista-minhas-pubs">
+                        {% for pub in minhas_publicacoes %}
+                        <div class="item-minha-pub">
+                            <div class="item-minha-pub-info">
+                                <div class="item-minha-pub-tags">
+                                    {% if pub.jogo_titulo %}
+                                    <span class="tag-jogo">{{ icon('gamepad', 12) }} {{ pub.jogo_titulo }}</span>
+                                    {% else %}
+                                    <span class="badge badge-livre">{{ icon('feather', 12) }} Post Livre</span>
+                                    {% endif %}
+                                    {% if pub.nota is not none %}
+                                    <span class="tag-nota">{{ icon('star', 12) }} {{ pub.nota }}/10</span>
+                                    {% endif %}
+                                    <span class="meta-item">{{ icon('heart', 12) }} {{ pub.votos or 0 }}</span>
+                                </div>
+                                <a href="{{ url_for('ver_publicacao', publicacao_id=pub.id) }}" class="item-minha-pub-titulo">
+                                    {{ pub.titulo }}
+                                </a>
+                            </div>
+                            <div class="item-minha-pub-acoes">
+                                <a href="{{ url_for('editar_publicacao', publicacao_id=pub.id) }}" class="botao botao-secundario botao-pequeno">
+                                    {{ icon('pencil', 13) }} Editar
+                                </a>
+                                <form method="POST" action="{{ url_for('excluir_publicacao_rota', publicacao_id=pub.id) }}" onsubmit="return confirm('Deseja remover esta publicação do seu blog?');">
+                                    <button type="submit" class="botao botao-perigo botao-pequeno" title="Excluir publicação">
+                                        {{ icon('trash', 13) }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="estado-vazio">
+                        <p>Você ainda não publicou no seu blog.</p>
+                        <a href="{{ url_for('nova_publicacao') }}" class="botao">
+                            {{ icon('pen', 15) }} Escrever primeira publicação
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <aside>
+        <div class="widget-lateral">
+            <div class="meu-blog-resumo">
+                <div class="avatar-usuario avatar-medio">
+                    {{ usuario_atual.username[0]|upper }}
+                </div>
+                <div>
+                    <h3 class="perfil-nome-blog">{{ usuario_atual.nome_blog or ('Blog de ' + usuario_atual.nome_completo) }}</h3>
+                    <span class="meu-blog-arroba">{{ usuario_atual.nome_completo }} · @{{ usuario_atual.username }}</span>
+                </div>
+            </div>
+
+            <p class="perfil-bio-caixa">{{ usuario_atual.bio }}</p>
+
+            <div class="grade-stats-mini" style="grid-template-columns: 1fr 1fr;">
+                <div class="caixa-estatistica">
+                    <div class="numero-estatistica">{{ minhas_publicacoes|length }}</div>
+                    <div class="rotulo-estatistica">Posts</div>
+                </div>
+                <div class="caixa-estatistica">
+                    <div class="numero-estatistica">{{ total_curtidas }}</div>
+                    <div class="rotulo-estatistica">Curtidas</div>
+                </div>
+            </div>
+
+            <div class="pilha-botoes">
+                <a href="{{ url_for('ver_blog_usuario', username=usuario_atual.username) }}" class="botao">
+                    {{ icon('book-user', 15) }} Ver meu blog público
+                </a>
+                <a href="{{ url_for('editar_perfil') }}" class="botao botao-secundario">
+                    {{ icon('settings', 15) }} Editar perfil e blog
+                </a>
+                <form method="POST" action="{{ url_for('excluir_minha_conta') }}" onsubmit="return confirm('Tem certeza que deseja encerrar e excluir sua conta e seu blog permanentemente?');">
+                    <button type="submit" class="botao botao-perigo botao-largura-total">
+                        {{ icon('trash', 15) }} Excluir minha conta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </aside>
+</div>
+{% endblock %}

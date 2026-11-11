@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}Catálogo de Jogos | IndieVault{% endblock %}
+
+{% block content %}
+<div class="painel">
+    <div class="painel-cabecalho">
+        <div>
+            <span class="painel-titulo">Catálogo de jogos</span>
+            <p class="painel-subtitulo">
+                Mostrando {{ jogos|length }} de {{ total }} jogos cadastrados pra marcar nos posts.
+            </p>
+        </div>
+        <div class="cabecalho-acoes">
+            <a href="{{ url_for('novo_jogo') }}" class="botao botao-pequeno">
+                {{ icon('plus', 14) }} Cadastrar jogo
+            </a>
+            <a href="{{ url_for('importar_dados') }}" class="botao botao-secundario botao-pequeno">
+                {{ icon('globe', 14) }} Importar da Web
+            </a>
+        </div>
+    </div>
+    <div class="painel-corpo painel-compacto">
+        <form method="GET" action="{{ url_for('listar_jogos_rota') }}">
+            <div class="grade-formulario">
+                <div>
+                    <label for="busca" class="rotulo-campo">Buscar por título ou plataforma</label>
+                    <input type="text" id="busca" name="busca" value="{{ filtro_busca }}" class="campo-input" placeholder="Ex: Hollow Knight, Celeste, Switch...">
+                </div>
+
+                <div>
+                    <label for="genero" class="rotulo-campo">Gênero</label>
+                    <select id="genero" name="genero" class="campo-input">
+                        <option value="">Todos os gêneros</option>
+                        {% for g in generos %}
+                        <option value="{{ g }}" {% if filtro_genero == g %}selected{% endif %}>{{ g }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="origem" class="rotulo-campo">Origem do cadastro</label>
+                    <select id="origem" name="origem" class="campo-input">
+                        <option value="">Todas as origens</option>
+                        <option value="local" {% if filtro_origem == 'local' %}selected{% endif %}>Adicionado pela comunidade</option>
+                        <option value="web_import" {% if filtro_origem == 'web_import' %}selected{% endif %}>Importado via API Web</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="acoes-filtro">
+                <button type="submit" class="botao botao-pequeno">
+                    {{ icon('search', 14) }} Aplicar filtros
+                </button>
+                {% if filtro_busca or filtro_genero or filtro_origem %}
+                <a href="{{ url_for('listar_jogos_rota') }}" class="botao botao-secundario botao-pequeno">Limpar filtros</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if jogos %}
+<div class="grade-jogos">
+    {% for jogo in jogos %}
+    <article class="card-jogo">
+        <div class="capa-jogo">
+            <div class="capa-jogo-badges">
+                <span class="badge">{{ jogo.ano_lancamento }}</span>
+                {% if jogo.origem_dados == 'web_import' %}
+                <span class="badge badge-experiencia">{{ icon('globe', 12) }} Web API</span>
+                {% endif %}
+            </div>
+            <div>
+                <h3 class="capa-jogo-titulo">{{ jogo.titulo }}</h3>
+                <span class="capa-jogo-genero">{{ jogo.genero }}</span>
+            </div>
+        </div>
+
+        <div class="conteudo-card-jogo">
+            <div class="card-jogo-meta">
+                <span class="tag-nota">
+                    {{ icon('star', 12) }} {{ jogo.media_nota }} ({{ jogo.total_publicacoes }} posts)
+                </span>
+            </div>
+
+            <p class="card-jogo-plataforma">
+                {{ icon('monitor', 14) }} <span>{{ jogo.plataforma }}</span>
+            </p>
+
+            <div class="card-jogo-acoes">
+                <a href="{{ url_for('listar_publicacoes_rota', jogo_id=jogo.id) }}" class="botao botao-secundario botao-pequeno card-jogo-flex">
+                    Ver posts
+                </a>
+                <a href="{{ url_for('nova_publicacao', jogo_id=jogo.id) }}" class="botao botao-pequeno" title="Escrever post sobre este jogo">
+                    {{ icon('pen', 13) }} Escrever
+                </a>
+                <a href="{{ url_for('editar_jogo', jogo_id=jogo.id) }}" class="botao botao-secundario botao-pequeno" title="Editar jogo">
+                    {{ icon('pencil', 13) }}
+                </a>
+                <form method="POST" action="{{ url_for('excluir_jogo_rota', jogo_id=jogo.id) }}" onsubmit="return confirm('Deseja remover {{ jogo.titulo }} do catálogo?');">
+                    <button type="submit" class="botao botao-perigo botao-pequeno" title="Excluir jogo">
+                        {{ icon('trash', 13) }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+{% if total_paginas > 1 %}
+<div class="paginacao">
+    {% if pagina > 1 %}
+    <a href="{{ url_for('listar_jogos_rota', pagina=pagina-1, busca=filtro_busca, genero=filtro_genero, origem=filtro_origem) }}" class="botao botao-secundario botao-pequeno">
+        {{ icon('arrow-left', 14) }} Anterior
+    </a>
+    {% endif %}
+    <span class="badge">Página {{ pagina }} de {{ total_paginas }}</span>
+    {% if pagina < total_paginas %}
+    <a href="{{ url_for('listar_jogos_rota', pagina=pagina+1, busca=filtro_busca, genero=filtro_genero, origem=filtro_origem) }}" class="botao botao-secundario botao-pequeno">
+        Próxima {{ icon('arrow-right', 14) }}
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="painel">
+    <div class="painel-corpo estado-vazio">
+        <p>Nenhum jogo encontrado com os filtros informados.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

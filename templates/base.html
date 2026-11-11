@@ -1,0 +1,104 @@
+{% from '_icons.html' import icon %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <title>{% block title %}IndieVault - Blogs Gamers{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+</head>
+<body>
+    <header class="cabecalho">
+        <div class="cabecalho-interno">
+            <a href="{{ url_for('menu_principal') if session.get('usuario_id') else url_for('login') }}" class="marca">
+                <span class="marca-icone">
+                    {{ icon('brand', 20) }}
+                </span>
+                <span>
+                    <span class="marca-titulo">IndieVault</span>
+                    <span class="marca-subtitulo">Blogs gamers</span>
+                </span>
+            </a>
+
+            {% if session.get('usuario_id') %}
+            <nav class="navegacao" aria-label="Navegação principal">
+                <a href="{{ url_for('menu_principal') }}" class="link-nav {% if request.endpoint == 'menu_principal' %}ativo{% endif %}">
+                    {{ icon('feed', 15) }} <span>Feed</span>
+                </a>
+                <a href="{{ url_for('listar_publicacoes_rota') }}" class="link-nav {% if request.endpoint in ('listar_publicacoes_rota', 'ver_publicacao') %}ativo{% endif %}">
+                    {{ icon('compass', 15) }} <span>Explorar</span>
+                </a>
+                <a href="{{ url_for('listar_blogs_rota') }}" class="link-nav {% if request.endpoint in ('listar_blogs_rota', 'ver_blog_usuario') %}ativo{% endif %}">
+                    {{ icon('users', 15) }} <span>Blogs</span>
+                </a>
+                <a href="{{ url_for('listar_jogos_rota') }}" class="link-nav {% if request.endpoint in ('listar_jogos_rota', 'novo_jogo', 'editar_jogo', 'importar_dados') %}ativo{% endif %}">
+                    {{ icon('gamepad', 15) }} <span>Jogos</span>
+                </a>
+                <a href="{{ url_for('nova_publicacao') }}" class="link-nav destaque">
+                    {{ icon('pen', 15) }} <span>Escrever</span>
+                </a>
+
+                <span class="nav-divisor" aria-hidden="true"></span>
+
+                <a href="{{ url_for('meu_perfil') }}" class="link-nav link-usuario {% if request.endpoint in ('meu_perfil', 'editar_perfil') %}ativo{% endif %}" title="Meu Espaço e Configurações">
+                    <span class="avatar-mini">{{ session.get('username', 'G')[0]|upper }}</span>
+                    <span>@{{ session.get('username') }}</span>
+                </a>
+                <a href="{{ url_for('exportar_dados') }}" class="link-nav link-compacto {% if request.endpoint == 'exportar_dados' %}ativo{% endif %}" title="Exportar Backup (.zip)">
+                    {{ icon('archive', 15) }} <span class="ocultar-tablet">Backup</span>
+                </a>
+                <a href="{{ url_for('sobre') }}" class="link-nav link-compacto {% if request.endpoint == 'sobre' %}ativo{% endif %}" title="Sobre o Projeto">
+                    {{ icon('info', 15) }} <span class="ocultar-tablet">Sobre</span>
+                </a>
+                <a href="{{ url_for('sair') }}" class="link-nav sair link-compacto" title="Sair da conta">
+                    {{ icon('log-out', 15) }} <span class="ocultar-tablet">Sair</span>
+                </a>
+            </nav>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="container-app">
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                {% for categoria, mensagem in mensagens %}
+                <div class="alerta alerta-{{ categoria }}" role="status">
+                    {% if categoria == 'sucesso' %}
+                        {{ icon('check-circle', 17) }}
+                    {% elif categoria == 'erro' %}
+                        {{ icon('alert-circle', 17) }}
+                    {% else %}
+                        {{ icon('info', 17) }}
+                    {% endif %}
+                    <span>{{ mensagem }}</span>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="rodape">
+            {% if session.get('usuario_id') %}
+            <div class="rodape-links" style="margin-top: 0;">
+                <a href="{{ url_for('ver_blog_usuario', username=session.get('username')) }}">Meu blog</a>
+                <span>·</span>
+                <a href="{{ url_for('importar_dados') }}">Importar jogos</a>
+                <span>·</span>
+                <a href="{{ url_for('exportar_dados') }}">Backup (.zip)</a>
+                <span>·</span>
+                <a href="{{ url_for('sobre') }}">Sobre</a>
+            </div>
+            {% else %}
+            <p>IndieVault · feito pra postar sobre jogos</p>
+            {% endif %}
+        </footer>
+    </div>
+</body>
+</html>

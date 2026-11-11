@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+{% from '_post_card.html' import render_post %}
+
+{% block title %}{{ autor.nome_blog or ('Blog de ' + autor.nome_completo) }} | IndieVault{% endblock %}
+
+{% block content %}
+<div class="painel banner-blog">
+    <div class="banner-blog-conteudo">
+        <div class="banner-blog-identidade">
+            <div class="avatar-usuario avatar-grande">
+                {{ (autor.nome_completo or autor.username)[0]|upper }}
+            </div>
+            <div>
+                <span class="pill-destaque">{{ icon('book-user', 13) }} Blog pessoal</span>
+                <h1 class="banner-blog-titulo">{{ autor.nome_blog or ('Blog de ' + autor.nome_completo) }}</h1>
+                <p class="banner-blog-sub">
+                    por <strong>{{ autor.nome_completo }}</strong> · <span>@{{ autor.username }}</span>
+                    {% if autor.criado_em %}
+                    · por aqui desde {{ autor.criado_em.strftime('%m/%Y') if autor.criado_em is not string else autor.criado_em[:7] }}
+                    {% endif %}
+                </p>
+                <p class="banner-blog-bio">{{ autor.bio }}</p>
+            </div>
+        </div>
+
+        <div class="banner-blog-acoes">
+            <div class="grade-stats-mini banner-stats">
+                <div class="caixa-estatistica">
+                    <div class="numero-estatistica">{{ total_publicacoes }}</div>
+                    <div class="rotulo-estatistica">Posts</div>
+                </div>
+                <div class="caixa-estatistica">
+                    <div class="numero-estatistica">{{ jogos_unicos }}</div>
+                    <div class="rotulo-estatistica">Jogos</div>
+                </div>
+                <div class="caixa-estatistica">
+                    <div class="numero-estatistica">{{ total_curtidas }}</div>
+                    <div class="rotulo-estatistica">Curtidas</div>
+                </div>
+            </div>
+
+            {% if autor.id == session.get('usuario_id') %}
+            <div class="banner-botoes">
+                <a href="{{ url_for('nova_publicacao') }}" class="botao">
+                    {{ icon('pen', 15) }} Escrever neste blog
+                </a>
+                <a href="{{ url_for('editar_perfil') }}" class="botao botao-secundario">
+                    {{ icon('settings', 15) }} Personalizar
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="abas-feed">
+    <div class="grupo-abas">
+        <a href="{{ url_for('ver_blog_usuario', username=autor.username) }}" class="aba-item {% if not filtro_categoria %}ativa{% endif %}">
+            Todos os posts
+        </a>
+        <a href="{{ url_for('ver_blog_usuario', username=autor.username, categoria='livre') }}" class="aba-item {% if filtro_categoria == 'livre' %}ativa{% endif %}">
+            {{ icon('feather', 13) }} Livres
+        </a>
+        <a href="{{ url_for('ver_blog_usuario', username=autor.username, categoria='zerado') }}" class="aba-item {% if filtro_categoria == 'zerado' %}ativa{% endif %}">
+            {{ icon('trophy', 13) }} Zerados
+        </a>
+        <a href="{{ url_for('ver_blog_usuario', username=autor.username, categoria='detonado') }}" class="aba-item {% if filtro_categoria == 'detonado' %}ativa{% endif %}">
+            {{ icon('book-open', 13) }} Detonados
+        </a>
+        <a href="{{ url_for('ver_blog_usuario', username=autor.username, categoria='experiencia') }}" class="aba-item {% if filtro_categoria == 'experiencia' %}ativa{% endif %}">
+            {{ icon('sparkles', 13) }} Experiências
+        </a>
+        <a href="{{ url_for('ver_blog_usuario', username=autor.username, categoria='analise') }}" class="aba-item {% if filtro_categoria == 'analise' %}ativa{% endif %}">
+            {{ icon('star', 13) }} Análises
+        </a>
+    </div>
+
+    <a href="{{ url_for('listar_blogs_rota') }}" class="botao botao-secundario botao-pequeno">
+        {{ icon('arrow-left', 14) }} Todos os blogs
+    </a>
+</div>
+
+{% if publicacoes %}
+<div class="coluna-leitura">
+    {% for pub in publicacoes %}
+        {{ render_post(pub, curtidas_usuario, session.get('usuario_id'), mostrar_autor=false) }}
+    {% endfor %}
+</div>
+{% else %}
+<div class="painel">
+    <div class="painel-corpo estado-vazio">
+        <p>Nenhuma publicação encontrada nesta seção do blog.</p>
+        {% if autor.id == session.get('usuario_id') %}
+        <a href="{{ url_for('nova_publicacao') }}" class="botao">
+            {{ icon('pen', 15) }} Escrever primeira publicação
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

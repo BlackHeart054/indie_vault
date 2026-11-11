@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% from '_icons.html' import icon %}
+
+{% block title %}Exportar Backup (.zip) | IndieVault{% endblock %}
+
+{% block content %}
+<div class="painel">
+    <div class="painel-cabecalho">
+        <div>
+            <span class="painel-titulo">Backup em JSON (.zip)</span>
+            <p class="painel-subtitulo">
+                Gera o arquivo <code>indievault_backup.zip</code> com todos os blogs, jogos e posts salvos em JSON.
+            </p>
+        </div>
+    </div>
+    <div class="painel-corpo">
+        <div class="grade-estatisticas">
+            <div class="caixa-estatistica">
+                <div class="numero-estatistica">{{ resumo.usuarios }}</div>
+                <div class="rotulo-estatistica">Blogs (usuarios)</div>
+            </div>
+            <div class="caixa-estatistica">
+                <div class="numero-estatistica">{{ resumo.jogos }}</div>
+                <div class="rotulo-estatistica">Jogos (jogos)</div>
+            </div>
+            <div class="caixa-estatistica">
+                <div class="numero-estatistica">{{ resumo.publicacoes }}</div>
+                <div class="rotulo-estatistica">Publicações (publicacoes)</div>
+            </div>
+            <div class="caixa-estatistica">
+                <div class="numero-estatistica valor-sucesso">{{ resumo.total_registros }}</div>
+                <div class="rotulo-estatistica">Total de Registros</div>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('baixar_backup_zip') }}" class="acoes-form" style="margin-bottom: 24px;">
+            <button type="submit" class="botao">
+                {{ icon('archive', 16) }} Baixar arquivo JSON compactado (.zip)
+            </button>
+            <a href="{{ url_for('menu_principal') }}" class="botao botao-secundario">Voltar ao Feed</a>
+        </form>
+
+        <h3 class="rotulo-previa">Pré-visualização dos dados em JSON</h3>
+        <pre class="caixa-codigo-json">{{ previa_json }}</pre>
+    </div>
+</div>
+{% endblock %}

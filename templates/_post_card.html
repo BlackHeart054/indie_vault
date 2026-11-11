@@ -1,0 +1,104 @@
+{% from '_icons.html' import icon %}
+
+{% macro render_post(pub, curtidas_usuario, usuario_id_atual, mostrar_autor=true) %}
+<article class="card-blogpost">
+    <div class="post-topo">
+        {% if mostrar_autor %}
+        <a href="{{ url_for('ver_blog_usuario', username=pub.username) }}" class="post-autor-link">
+            <span class="avatar-usuario avatar-pequeno">{{ (pub.nome_completo or pub.username or 'G')[0]|upper }}</span>
+            <span class="post-autor-info">
+                <strong>{{ pub.nome_completo }}</strong>
+                <span class="post-arroba">@{{ pub.username }}{% if pub.nome_blog %} · {{ pub.nome_blog }}{% endif %}</span>
+            </span>
+        </a>
+        {% else %}
+        <span class="post-data-solo">
+            {{ icon('calendar', 14) }}
+            <span>{{ pub.criado_em.strftime('%d/%m/%Y às %H:%M') if pub.criado_em and pub.criado_em is not string else (pub.criado_em or 'recentemente') }}</span>
+        </span>
+        {% endif %}
+
+        <div class="post-topo-direita">
+            {% if pub.categoria == 'detonado' %}
+                <span class="badge badge-detonado">{{ icon('book-open', 13) }} Detonado</span>
+            {% elif pub.categoria == 'experiencia' %}
+                <span class="badge badge-experiencia">{{ icon('sparkles', 13) }} Experiência</span>
+            {% elif pub.categoria == 'analise' %}
+                <span class="badge badge-analise">{{ icon('star', 13) }} Análise</span>
+            {% elif pub.categoria == 'zerado' %}
+                <span class="badge badge-zerado">{{ icon('trophy', 13) }} Jogo Zerado</span>
+            {% else %}
+                <span class="badge badge-livre">{{ icon('feather', 13) }} Post Livre</span>
+            {% endif %}
+
+            {% if mostrar_autor %}
+            <span class="post-data">
+                {{ pub.criado_em.strftime('%d/%m/%Y') if pub.criado_em and pub.criado_em is not string else (pub.criado_em or '') }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <h3 class="titulo-publicacao">
+        <a href="{{ url_for('ver_publicacao', publicacao_id=pub.id) }}">{{ pub.titulo }}</a>
+    </h3>
+
+    {% if pub.jogo_titulo %}
+    <div class="meta-jogatina">
+        <a href="{{ url_for('listar_publicacoes_rota', jogo_id=pub.jogo_id) }}" class="tag-jogo">
+            {{ icon('gamepad', 13) }} {{ pub.jogo_titulo }}
+        </a>
+        {% if pub.nota is not none %}
+        <span class="tag-nota">{{ icon('star', 12) }} {{ pub.nota }}/10</span>
+        {% endif %}
+        {% if pub.status_jogo and pub.status_jogo != 'Postagem Livre' %}
+        <span class="meta-item">{{ icon('tag', 13) }} {{ pub.status_jogo }}</span>
+        {% endif %}
+        {% if pub.horas_jogadas and pub.horas_jogadas > 0 %}
+        <span class="meta-item">{{ icon('clock', 13) }} {{ pub.horas_jogadas }}h</span>
+        {% endif %}
+        {% if pub.jogo_plataforma %}
+        <span class="meta-item">{{ icon('monitor', 13) }} {{ pub.jogo_plataforma }}</span>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="texto-publicacao texto-resumo">{{ pub.conteudo }}</div>
+
+    <div class="rodape-publicacao">
+        <div class="rodape-esquerda">
+            <form method="POST" action="{{ url_for('votar_publicacao_rota', publicacao_id=pub.id) }}" class="form-curtir">
+                {% set curtiu = pub.id in curtidas_usuario %}
+                <button type="submit" class="botao-curtir {% if curtiu %}curtido{% endif %}" title="{% if curtiu %}Remover curtida{% else %}Curtir publicação{% endif %}">
+                    {{ icon('heart-filled' if curtiu else 'heart', 15) }}
+                    <span>{{ pub.votos or 0 }}</span>
+                </button>
+            </form>
+
+            <a href="{{ url_for('ver_publicacao', publicacao_id=pub.id) }}" class="acao-post">
+                {{ icon('book-open', 14) }} Ler completo
+            </a>
+
+            {% if mostrar_autor %}
+            <a href="{{ url_for('ver_blog_usuario', username=pub.username) }}" class="acao-post">
+                {{ icon('book-user', 14) }} Visitar blog
+            </a>
+            {% endif %}
+        </div>
+
+        {% if pub.usuario_id == usuario_id_atual %}
+        <div class="rodape-direita">
+            <a href="{{ url_for('editar_publicacao', publicacao_id=pub.id) }}" class="acao-post">
+                {{ icon('pencil', 14) }} Editar
+            </a>
+            <form method="POST" action="{{ url_for('excluir_publicacao_rota', publicacao_id=pub.id) }}" onsubmit="return confirm('Deseja excluir esta publicação do seu blog?');">
+                <button type="submit" class="acao-post acao-perigo">
+                    {{ icon('trash', 14) }} Excluir
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</article>
+{% endmacro %}
+
